@@ -100,12 +100,10 @@ class GitConfigurationSource implements ConfigurationSource, Closeable {
   }
 
   @Override
-  public Properties getConfiguration(Environment environment) {
+  public synchronized Properties getConfiguration(Environment environment) {
     if (!initialized) {
       throw new IllegalStateException("Configuration source has to be successfully initialized before you request configuration.");
     }
-
-    reload();
 
     try {
       checkoutToBranch(branchResolver.getBranchNameFor(environment));
@@ -139,7 +137,7 @@ class GitConfigurationSource implements ConfigurationSource, Closeable {
    * @throws SourceCommunicationException when unable to clone repository
    */
   @Override
-  public void init() {
+  public synchronized void init() {
     LOG.info("Initializing " + GitConfigurationSource.class + " pointing to " + repositoryURI);
 
     try {
@@ -168,7 +166,7 @@ class GitConfigurationSource implements ConfigurationSource, Closeable {
     initialized = true;
   }
 
-  public void reload() {
+  public synchronized void reload() {
     try {
       LOG.debug("Reloading configuration by pulling changes");
 
@@ -186,7 +184,7 @@ class GitConfigurationSource implements ConfigurationSource, Closeable {
   }
 
   @Override
-  public void close() throws IOException {
+  public synchronized void close() throws IOException {
     LOG.debug("Closing local repository: " + clonedRepoPath);
     clonedRepo.close();
     new FileUtils().deleteDir(clonedRepoPath);
