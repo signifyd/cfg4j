@@ -178,7 +178,6 @@ class GitConfigurationSource implements ConfigurationSource, Closeable {
       pullCommand.call();
 
     } catch (GitAPIException e) {
-      initialized = false;
       throw new IllegalStateException("Unable to pull from remote repository", e);
     }
   }
